@@ -30,20 +30,34 @@ export default function Portfolio() {
     },
   ];
 
-  const papers = [
-    {
-      title: "page",
-      venue: "x",
-      desc: "x",
-    },
-  ];
+  // const papers = [
+  //   {
+  //     title: "page",
+  //     venue: "x",
+  //     desc: "x",
+  //   },
+  // ];
 
   const work = [
     {
-      role: "swe intern",
-      company: "BondBrandLoyalty",
+      role: "AI Engineer intern",
+      company: "Bond Brand Loyalty",
       period: "May 2026 - Aug 2026",
-      desc: "AI.",
+      desc: "Internal Development + Client AI Solutions.",
+    },
+
+    {
+      role: "Software Engineer intern",
+      company: "KGS Group",
+      period: "May 2024 - Aug 2024",
+      desc: "Internal Platforms.",
+    },
+
+    {
+      role: "Cloud Engineer Intern",
+      company: "CIBC",
+      period: "May 2024 - Aug 2024",
+      desc: "Cloud Migrations and AI Integration.",
     },
   ];
 
@@ -56,18 +70,14 @@ export default function Portfolio() {
       <div className="mx-auto max-w-3xl px-6 py-16">
         <button
           onClick={() => setDark(!dark)}
-          className={`fixed right-6 top-6 rounded p-2 transition-colors ${
-            dark
-              ? "bg-zinc-800 hover:bg-zinc-700"
-              : "bg-zinc-200 hover:bg-zinc-300"
-          }`}
+          className={`fixed right-6 top-6 rounded p-2 transition-colors duration-1000`}
           aria-label="Toggle theme"
         >
           {dark ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
         <header className="mb-16">
-          <h1 className="mb-2 text-4xl font-mono">Collin Sobowale</h1>
+          <h1 className="mb-2 text-3xl font-mono">Collin Sobowale</h1>
           <p
             className={`text-sm font-mono ${
               dark ? "text-zinc-400" : "text-zinc-600"
@@ -84,13 +94,13 @@ export default function Portfolio() {
             </p>
 
             <div
-              className={`flex items-center gap-2 text-sm font-mono ${dark ? "text-zinc-400" : "text-zinc-500"}`}
+              className={`flex items-center gap-2 text-sm font-mono ${dark ? "text-zinc-400" : "neutral-600"}`}
             >
               <span>Computer Science + Business @ Western/Ivey</span>
             </div>
 
             <div
-              className={`pt-2 border-t ${dark ? "border-zinc-800" : "border-zinc-200"}`}
+              className={`pt-2 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
             >
               <button
                 type="button"
@@ -106,34 +116,52 @@ export default function Portfolio() {
 
               {showMore && (
                 <div className="mt-4 space-y-3 text-sm leading-relaxed">
-                  <p>
-                    Hey 👋.
-                  </p>
-                  <p>
-                   x.
-                  </p>
+                  <p>Hey 👋.</p>
+                  <p>x.</p>
                 </div>
               )}
             </div>
           </div>
         </header>
 
+        {/* Work, Projects, Writing Sections */}
         <section className="mb-16">
+          {/* Work*/}
           <section>
             <h2
-              className={`mb-6 text-xl font-mono ${
-                dark ? "text-zinc-300" : "opacity-60"
+              className={`mb-3 text-l font-mono ${
+                dark ? "text-zinc-300" : "neutral-600"
               }`}
             >
-              ~/work
+              /work
             </h2>
+
             <div className="space-y-6">
               {work.map((item) => (
-                <div key={`${item.role}-${item.company}`} className="font-mono">
-                  <div className="mb-1 flex items-baseline justify-between">
-                    <span className={dark ? "text-zinc-200" : "text-zinc-800"}>
-                      {item.company}
-                    </span>
+                <div key={`${item.role}-${item.company}`}>
+                  {/*Company*/}
+                  <div className="mb-1 text-md flex items-baseline justify-between">
+                    <div className="flex items-baseline gap-2">
+                      <span className={dark ? "text-zinc-200" : "neutral-600"}>
+                        {item.company}
+                      </span>
+                      <span
+                        className={`text-sm ${dark ? "text-zinc-200" : "neutral-600"}`}
+                      >
+                        {" · "}
+                      </span>
+
+                      {/*Role*/}
+                      <span
+                        className={`text-md ${
+                          dark ? "text-zinc-200" : "neutral-600"
+                        }`}
+                      >
+                        {item.role}
+                      </span>
+                    </div>
+
+                    {/*Time*/}
                     <span
                       className={`text-xs ${
                         dark ? "text-zinc-400" : "text-zinc-500"
@@ -142,16 +170,18 @@ export default function Portfolio() {
                       {item.period}
                     </span>
                   </div>
-                  <div
+
+                  {/* <div
                     className={`mb-1 text-sm ${
                       dark ? "text-zinc-300" : "text-zinc-700"
                     }`}
                   >
                     {item.role}
-                  </div>
+                  </div> */}
+                  {/*Description*/}
                   <p
                     className={`text-sm ${
-                      dark ? "text-zinc-300" : "text-zinc-600"
+                      dark ? "text-zinc-400" : "text-zinc-600"
                     }`}
                   >
                     {item.desc}
@@ -197,7 +227,7 @@ export default function Portfolio() {
           </div>
         </section>
 
-        <section className="mb-6">
+        {/* <section className="mb-6">
           <h2
             className={`mb-6 text-xl font-mono ${
               dark ? "text-zinc-300" : "opacity-60"
@@ -230,7 +260,7 @@ export default function Portfolio() {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
 
         <footer
           className={`mt-16 border-t pt-8 ${
