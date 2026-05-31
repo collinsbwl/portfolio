@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
+import { FadeIn } from "@/components/fade-in";
 
 export default function Portfolio() {
   const [dark, setDark] = useState(true);
   const [showMore, setShowMore] = useState(false);
-
   useEffect(() => {
     const background = dark ? "#18181b" : "#f3f2ed";
     const foreground = dark ? "#e4e4e7" : "#27272a";
@@ -17,18 +17,18 @@ export default function Portfolio() {
     root.style.setProperty("--foreground", foreground);
   }, [dark]);
 
-  const projects = [
-    {
-      name: "Ignition",
-      desc: "x",
-      tech: "python",
-    },
-    {
-      name: "temp",
-      desc: "x",
-      tech: "python",
-    },
-  ];
+  // const projects = [
+  //   {
+  //     name: "Ignition",
+  //     desc: "x",
+  //     tech: "python",
+  //   },
+  //   {
+  //     name: "temp",
+  //     desc: "x",
+  //     tech: "python",
+  //   },
+  // ];
 
   // const papers = [
   //   {
@@ -43,41 +43,42 @@ export default function Portfolio() {
       role: "AI Engineer intern",
       company: "Bond Brand Loyalty",
       period: "May 2026 - Aug 2026",
-      desc: "Internal Development + Client AI Solutions.",
+      desc: "Client AI Solutions + Internal Apps",
     },
 
     {
       role: "Software Engineer intern",
       company: "KGS Group",
       period: "May 2024 - Aug 2024",
-      desc: "Internal Platforms.",
+      desc: "Internal Platforms",
     },
 
     {
       role: "Cloud Engineer Intern",
       company: "CIBC",
       period: "May 2024 - Aug 2024",
-      desc: "Cloud Migrations and AI Integration.",
+      desc: "Cloud Migrations and AI Integration",
     },
   ];
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-300 ${
+      className={`min-h-screen overflow-x-hidden transition-colors duration-300 ${
         dark ? "bg-zinc-900 text-zinc-200" : "bg-[#f3f2ed] text-zinc-800"
       }`}
     >
       <div className="mx-auto max-w-3xl px-6 py-16">
-        <button
-          onClick={() => setDark(!dark)}
-          className={`fixed right-6 top-6 rounded p-2 transition-colors duration-1000`}
-          aria-label="Toggle theme"
-        >
-          {dark ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
-
-        <header className="mb-16">
-          <h1 className="mb-2 text-3xl font-mono">Collin Sobowale</h1>
+        <header className="mb-8">
+          <div className="mb-2 flex items-center justify-between">
+            <h1 className="text-3xl font-mono">Collin Sobowale</h1>
+            <button
+              onClick={() => setDark(!dark)}
+              className="rounded p-2 transition-colors duration-1000"
+              aria-label="Toggle theme"
+            >
+              {dark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          </div>
           <p
             className={`text-sm font-mono ${
               dark ? "text-zinc-400" : "text-zinc-600"
@@ -87,18 +88,21 @@ export default function Portfolio() {
           </p>
 
           <div
-            className={`mt-6 space-y-4 max-w-xl ${dark ? "text-zinc-300" : "text-zinc-700"}`}
+            className={`mt-4 space-y-2 ${dark ? "text-zinc-300" : "text-zinc-700"}`}
           >
-            <p className="text-sm leading-relaxed">
-              Interested in building products and solutions.
-            </p>
+            <div className="max-w-xl space-y-2">
+              <p className="text-sm leading-relaxed">
+                Interested in building products and solutions.
+              </p>
 
-            <div
-              className={`flex items-center gap-2 text-sm font-mono ${dark ? "text-zinc-400" : "neutral-600"}`}
-            >
-              <span>Computer Science + Business @ Western/Ivey</span>
+              <div
+                className={`flex items-center gap-2 text-sm font-mono ${dark ? "text-zinc-400" : "neutral-600"}`}
+              >
+                <span>Computer Science + Business @ Western/Ivey</span>
+              </div>
             </div>
 
+            {/* Border Line */}
             <div
               className={`pt-2 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
             >
@@ -116,8 +120,31 @@ export default function Portfolio() {
 
               {showMore && (
                 <div className="mt-4 space-y-3 text-sm leading-relaxed">
-                  <p>Hey 👋.</p>
-                  <p>x.</p>
+                  <p>
+                    Currently researching AI ethics, cloud computing, data
+                    centre flooding.
+                  </p>
+                  <p>
+                    Building + engineering [at]{" "}
+                    <a
+                      className="hover:underline hover:underline-offset-4 text-neutral-300"
+                      href="https://iveyproductsociety.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Ivey Product Management Society
+                    </a>
+                    ,{" "}
+                    <a
+                      className="hover:underline hover:underline-offset-4 text-neutral-300"
+                      href="https://www.autumn.co/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Autumn.co
+                    </a>
+                    .
+                  </p>
                 </div>
               )}
             </div>
@@ -125,11 +152,11 @@ export default function Portfolio() {
         </header>
 
         {/* Work, Projects, Writing Sections */}
-        <section className="mb-16">
+        <FadeIn delay={0.1} className="mb-9">
           {/* Work*/}
           <section>
             <h2
-              className={`mb-3 text-l font-mono ${
+              className={`mb-3 text-md font-mono ${
                 dark ? "text-zinc-300" : "neutral-600"
               }`}
             >
@@ -190,17 +217,24 @@ export default function Portfolio() {
               ))}
             </div>
           </section>
-        </section>
+        </FadeIn>
 
-        <section className="mb-16">
+        <FadeIn delay={0.5} className="mb-9">
           <h2
-            className={`mb-6 text-xl font-mono ${
-              dark ? "text-zinc-300" : "opacity-60"
+            className={`mb-3 text-md font-mono ${
+              dark ? "text-zinc-300" : "neutral-600"
             }`}
           >
-            ~/projects
+            /projects
           </h2>
           <div className="space-y-6">
+            <span
+              className={`text-sm ${dark ? "text-zinc-400" : "text-zinc-500"}`}
+            >
+              In progress.
+            </span>
+          </div>
+          {/* <div className="space-y-6">
             {projects.map((project) => (
               <div key={project.name} className="font-mono">
                 <div className="mb-1 flex items-baseline gap-3">
@@ -224,8 +258,8 @@ export default function Portfolio() {
                 </p>
               </div>
             ))}
-          </div>
-        </section>
+          </div> */}
+        </FadeIn>
 
         {/* <section className="mb-6">
           <h2
@@ -263,7 +297,7 @@ export default function Portfolio() {
         </section> */}
 
         <footer
-          className={`mt-16 border-t pt-8 ${
+          className={`mt-4 border-t pt-4 ${
             dark ? "border-zinc-700" : "border-zinc-300"
           } flex flex-row`}
         >
@@ -277,7 +311,7 @@ export default function Portfolio() {
               github{" "}
             </Link>
             <p> \ </p>
-            <Link href={"x"} className="underline">
+            <Link href={"https://www.linkedin.com/in/collinsbwle/"} className="underline">
               {" "}
               linkedin{" "}
             </Link>
