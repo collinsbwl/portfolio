@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { FadeIn } from "@/components/fade-in";
 
 export default function Portfolio() {
@@ -68,7 +69,8 @@ export default function Portfolio() {
       }`}
     >
       <div className="mx-auto max-w-3xl px-6 py-16">
-        <header className="mb-8">
+        <FadeIn delay={0} className="mb-8">
+        <header>
           <div className="mb-2 flex items-center justify-between">
             <h1 className="text-3xl font-mono">Collin Sobowale</h1>
             <button
@@ -118,11 +120,24 @@ export default function Portfolio() {
                 {showMore ? "↑ show less" : "↓ read more"}
               </button>
 
-              {showMore && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{
+                  opacity: showMore ? 1 : 0,
+                  height: showMore ? "auto" : 0,
+                }}
+                transition={{
+                  duration: 0.7,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="overflow-hidden"
+              >
                 <div className="mt-4 space-y-3 text-sm leading-relaxed">
                   <p>
-                    Currently researching AI ethics, cloud computing, data
-                    centre flooding.
+                    Passionate about what inspires me; people, problem solving, chess, and tennis.
+                  </p>
+                  <p>
+                    Currently researching AI ethics, cloud computing, data centre flooding.
                   </p>
                   <p>
                     Building + engineering [at]{" "}
@@ -146,13 +161,14 @@ export default function Portfolio() {
                     .
                   </p>
                 </div>
-              )}
+              </motion.div>
             </div>
           </div>
         </header>
+        </FadeIn>
 
         {/* Work, Projects, Writing Sections */}
-        <FadeIn delay={0.1} className="mb-9">
+        <FadeIn delay={0.2} className="mb-9">
           {/* Work*/}
           <section>
             <h2
@@ -219,7 +235,7 @@ export default function Portfolio() {
           </section>
         </FadeIn>
 
-        <FadeIn delay={0.5} className="mb-9">
+        <FadeIn delay={0.4} className="mb-9">
           <h2
             className={`mb-3 text-md font-mono ${
               dark ? "text-zinc-300" : "neutral-600"
@@ -231,7 +247,7 @@ export default function Portfolio() {
             <span
               className={`text-sm ${dark ? "text-zinc-400" : "text-zinc-500"}`}
             >
-              In progress.
+              section in progress.
             </span>
           </div>
           {/* <div className="space-y-6">
@@ -306,8 +322,8 @@ export default function Portfolio() {
               dark ? "text-zinc-400" : "text-zinc-500"
             } flex flex-row`}
           >
-            <Link href={"x"} className="underline">
-              {" "}
+            <Link href={"https://github.com/collinsbwl"} className="underline">
+              {""}
               github{" "}
             </Link>
             <p> \ </p>
@@ -316,7 +332,7 @@ export default function Portfolio() {
               linkedin{" "}
             </Link>
             <p> \ </p>
-            <Link type="mail" href={"mailto:x"} className="underline">
+            <Link type="mail" href={"mailto:collinsbwle@gmail.com"} className="underline">
               {" "}
               email{" "}
             </Link>
