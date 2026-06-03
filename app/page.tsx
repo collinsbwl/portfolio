@@ -50,7 +50,7 @@ export default function Portfolio() {
     {
       role: "Software Engineer intern",
       company: "KGS Group",
-      period: "May 2024 - Aug 2024",
+      period: "May 2025 - Aug 2025",
       desc: "Internal Platforms",
     },
 
@@ -94,7 +94,7 @@ export default function Portfolio() {
           >
             <div className="max-w-xl space-y-2">
               <p className="text-sm leading-relaxed">
-                Interested in building products and solutions.
+                Interested in building products and solutions!
               </p>
 
               <div
@@ -179,11 +179,11 @@ export default function Portfolio() {
               /work
             </h2>
 
-            <div className="space-y-6">
+            <div className="space-y-3">
               {work.map((item) => (
                 <div key={`${item.role}-${item.company}`}>
                   {/*Company*/}
-                  <div className="mb-1 text-md flex items-baseline justify-between">
+                  <div className="mb-1 text-sm flex items-baseline justify-between">
                     <div className="flex items-baseline gap-2">
                       <span className={dark ? "text-zinc-200" : "neutral-600"}>
                         {item.company}
