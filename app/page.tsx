@@ -68,103 +68,101 @@ export default function Portfolio() {
         dark ? "bg-zinc-900 text-zinc-200" : "bg-[#f3f2ed] text-zinc-800"
       }`}
     >
-      <div className="mx-auto max-w-3xl px-6 py-16">
+      <div className="mx-auto max-w-2xl px-6 py-16">
         <FadeIn delay={0} className="mb-8">
-        <header>
-          <div className="mb-2 flex items-center justify-between">
-            <h1 className="text-3xl font-mono">Collin Sobowale</h1>
-            <button
-              onClick={() => setDark(!dark)}
-              className="rounded p-2 transition-colors duration-1000"
-              aria-label="Toggle theme"
-            >
-              {dark ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          </div>
-          <p
-            className={`text-sm font-mono ${
-              dark ? "text-zinc-400" : "text-zinc-600"
-            }`}
-          >
-            {" "}
-          </p>
-
-          <div
-            className={`mt-4 space-y-2 ${dark ? "text-zinc-300" : "text-zinc-700"}`}
-          >
-            <div className="max-w-xl space-y-2">
-              <p className="text-sm leading-relaxed">
-                Interested in building products and solutions!
-              </p>
-
-              <div
-                className={`flex items-center gap-2 text-sm font-mono ${dark ? "text-zinc-400" : "neutral-600"}`}
+          <header>
+            <div className="mb-2 flex items-center justify-between">
+              <h1 className="text-xl">Collin Sobowale</h1>
+              <button
+                onClick={() => setDark(!dark)}
+                className="rounded p-2 transition-colors duration-1000"
+                aria-label="Toggle theme"
               >
-                <span>Computer Science + Business @ Western/Ivey</span>
+                {dark ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+            </div>
+            <p
+              className={`text-sm font-mono ${
+                dark ? "text-zinc-400" : "text-zinc-600"
+              }`}
+            >
+              {" "}
+            </p>
+
+            <div
+              className={`mt-2 space-y-2 ${dark ? "text-zinc-300" : "text-zinc-700"}`}
+            >
+              <div className="max-w-xl space-y-2">
+                <div
+                  className={`flex items-center gap-2 text-sm font-mono ${dark ? "text-zinc-400" : "neutral-600"}`}
+                >
+                  <span>Computer Science + Business @ Western/Ivey</span>
+                </div>
+              </div>
+
+              {/* Border Line */}
+              <div
+                className={`pt-2 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowMore((prev) => !prev)}
+                  className={`font-mono text-xs uppercase tracking-wide transition-colors ${
+                    dark
+                      ? "text-zinc-400 hover:text-zinc-200"
+                      : "text-zinc-600 hover:text-zinc-800"
+                  }`}
+                >
+                  {showMore ? "↑ show less" : "↓ read more"}
+                </button>
+
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{
+                    opacity: showMore ? 1 : 0,
+                    height: showMore ? "auto" : 0,
+                  }}
+                  transition={{
+                    duration: 0.7,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-4 space-y-3 text-sm leading-relaxed">
+                    <p>
+                      Passionate about what inspires me; people, problem
+                      solving, chess, and tennis.
+                    </p>
+                    <p>
+                      Currently researching AI ethics, cloud computing, data
+                      centre flooding.
+                    </p>
+                    <p>
+                      Building + engineering [at]{" "}
+                      <a
+                        className="hover:underline hover:underline-offset-4"
+                        href="https://iveyproductsociety.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Ivey Product Management Society
+                      </a>
+                      ,{" "}
+                      <a
+                        className="hover:underline hover:underline-offset-4"
+                        href="https://www.autumn.co/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Autumn.co
+                      </a>
+                      .
+                    </p>
+                  </div>
+                </motion.div>
               </div>
             </div>
-
-            {/* Border Line */}
-            <div
-              className={`pt-2 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
-            >
-              <button
-                type="button"
-                onClick={() => setShowMore((prev) => !prev)}
-                className={`font-mono text-xs uppercase tracking-wide transition-colors ${
-                  dark
-                    ? "text-zinc-400 hover:text-zinc-200"
-                    : "text-zinc-600 hover:text-zinc-800"
-                }`}
-              >
-                {showMore ? "↑ show less" : "↓ read more"}
-              </button>
-
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{
-                  opacity: showMore ? 1 : 0,
-                  height: showMore ? "auto" : 0,
-                }}
-                transition={{
-                  duration: 0.7,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="overflow-hidden"
-              >
-                <div className="mt-4 space-y-3 text-sm leading-relaxed">
-                  <p>
-                    Passionate about what inspires me; people, problem solving, chess, and tennis.
-                  </p>
-                  <p>
-                    Currently researching AI ethics, cloud computing, data centre flooding.
-                  </p>
-                  <p>
-                    Building + engineering [at]{" "}
-                    <a
-                      className="hover:underline hover:underline-offset-4 text-neutral-300"
-                      href="https://iveyproductsociety.com/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Ivey Product Management Society
-                    </a>
-                    ,{" "}
-                    <a
-                      className="hover:underline hover:underline-offset-4 text-neutral-300"
-                      href="https://www.autumn.co/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Autumn.co
-                    </a>
-                    .
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </header>
+          </header>
         </FadeIn>
 
         {/* Work, Projects, Writing Sections */}
@@ -327,12 +325,19 @@ export default function Portfolio() {
               github{" "}
             </Link>
             <p> \ </p>
-            <Link href={"https://www.linkedin.com/in/collinsbwle/"} className="underline">
+            <Link
+              href={"https://www.linkedin.com/in/collinsbwle/"}
+              className="underline"
+            >
               {" "}
               linkedin{" "}
             </Link>
             <p> \ </p>
-            <Link type="mail" href={"mailto:collinsbwle@gmail.com"} className="underline">
+            <Link
+              type="mail"
+              href={"mailto:collinsbwle@gmail.com"}
+              className="underline"
+            >
               {" "}
               email{" "}
             </Link>
