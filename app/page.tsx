@@ -5,6 +5,8 @@ import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FadeIn } from "@/components/fade-in";
+import { ProjectsSection } from "@/components/projects";
+import { WritingSection } from "@/components/writing";
 
 export default function Portfolio() {
   const [dark, setDark] = useState(true);
@@ -19,27 +21,6 @@ export default function Portfolio() {
     root.style.setProperty("--background", background);
     root.style.setProperty("--foreground", foreground);
   }, [dark]);
-
-  // const projects = [
-  //   {
-  //     name: "Ignition",
-  //     desc: "x",
-  //     tech: "python",
-  //   },
-  //   {
-  //     name: "temp",
-  //     desc: "x",
-  //     tech: "TypeScript, HTML/CSS, React",
-  //   },
-  // ];
-
-  // const papers = [
-  //   {
-  //     title: "page",
-  //     venue: "x",
-  //     desc: "x",
-  //   },
-  // ];
 
   const work = [
     {
@@ -252,28 +233,7 @@ export default function Portfolio() {
               >
                 /projects
               </h2>
-              {/* <div className="space-y-3 mb-4">
-                {projects.map((project) => (
-                  <div key={project.name}>
-                    <div className="mb-1 text-sm flex items-baseline justify-between">
-                      <div className="flex items-baseline gap-2">
-                        <span className={dark ? "text-zinc-200" : "neutral-600"}>
-                          {project.name}
-                        </span>
-                        <span className={`text-sm ${dark ? "text-zinc-200" : "neutral-600"}`}>
-                          {" · "}
-                        </span>
-                        <span className={`text-sm ${dark ? "text-zinc-400" : "text-zinc-500"}`}>
-                          {project.tech}
-                        </span>
-                      </div>
-                    </div>
-                    <p className={`text-sm ${dark ? "text-zinc-400" : "text-zinc-600"}`}>
-                      {project.desc}
-                    </p>
-                  </div>
-                ))}
-              </div> */}
+              <ProjectsSection dark={dark} />
             </motion.div>
           </section>
         </FadeIn>
@@ -299,33 +259,7 @@ export default function Portfolio() {
               >
                 /writing
               </h2>
-              {/* <div className="space-y-6 mb-4">
-                {papers.map((paper) => (
-                  <div key={paper.title} className="font-mono">
-                    <div className="mb-1 flex items-baseline gap-3">
-                      <span
-                        className={dark ? "text-zinc-200" : "text-zinc-800"}
-                      >
-                        {paper.title}
-                      </span>
-                      <span
-                        className={`text-xs ${
-                          dark ? "text-zinc-400" : "text-zinc-500"
-                        }`}
-                      >
-                        {paper.venue}
-                      </span>
-                    </div>
-                    <p
-                      className={`text-sm ${
-                        dark ? "text-zinc-300" : "text-zinc-600"
-                      }`}
-                    >
-                      {paper.desc}
-                    </p>
-                  </div>
-                ))}
-              </div> */}
+              <WritingSection dark={dark} />
             </motion.div>
           </section>
         </FadeIn>
