@@ -1,12 +1,12 @@
-const papers: { title: string; venue: string; desc: string }[] = [];
+// const papers: { title: string; venue: string; desc: string }[] = [];
 
- // const papers = [
-  //   {
-  //     title: "page",
-  //     venue: "x",
-  //     desc: "x",
-  //   },
-  // ];
+ const papers = [
+    {
+      title: "page",
+      venue: "x",
+      desc: "x",
+    },
+  ];
 
 export function WritingSection({ dark }: { dark: boolean }) {
   if (papers.length === 0) {

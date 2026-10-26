@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+(() => {
+  const q = new URLSearchParams(location.search);
+  if (!q.has('embed')) return;
+  const root = document.documentElement;
+  root.classList.add('embed');
+  const t = q.get('theme');
+  if (t === 'light' || t === 'dark') root.dataset.theme = t;
+})();
+</script>
+<title>Isometric Chess Set</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: gallery-plate header, one isometric line-art stage, a quiet control strip and move log beneath */
+:root{
+  --bg:#f6f6f4; --top:#ffffff; --side-l:#ededeb; --side-r:#e1e1de;
+  --ink:#2b2c2f; --ink-soft:#8a8c90; --sq-l:#ffffff; --sq-d:#dddcd8;
+  --pw:#ffffff; --pb:#5b5e64; --pl:#2b2c2f;
+  --accent:#2e5bd0; --danger:#c43d2a; --chip:#ebebe8; --btn-fg:#f6f6f4;
+  --font-ui:"Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141517; --top:#27292d; --side-l:#1f2124; --side-r:#1a1b1e;
+  --ink:#c6c8cc; --ink-soft:#7e8187; --sq-l:#2c2e33; --sq-d:#1d1f22;
+  --pw:#e9e9e4; --pb:#4b4e55; --pl:#0c0d0f;
+  --accent:#88a7ff; --danger:#ff8b78; --chip:#212327; --btn-fg:#141517; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#141517; --top:#27292d; --side-l:#1f2124; --side-r:#1a1b1e;
+  --ink:#c6c8cc; --ink-soft:#7e8187; --sq-l:#2c2e33; --sq-d:#1d1f22;
+  --pw:#e9e9e4; --pb:#4b4e55; --pl:#0c0d0f;
+  --accent:#88a7ff; --danger:#ff8b78; --chip:#212327; --btn-fg:#141517; color-scheme:dark }
+
+body{background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.wrap{max-width:1100px;margin:0 auto;padding-block:32px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:grid;gap:18px}
+.head h1{margin:0;font-size:1.4rem;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.meta{margin:.3rem 0 0;color:var(--ink-soft);font-size:1.05rem}
+.stage{min-width:0}
+.stage svg{display:block;width:100%;height:auto;max-width:100%;user-select:none;-webkit-user-select:none}
+
+.panel{display:grid;gap:14px;max-width:760px}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+button{font:500 .9rem/1 var(--font-ui);padding:.7rem 1rem;border-radius:8px;cursor:pointer;
+  border:1px solid var(--ink);background:transparent;color:var(--ink)}
+button.primary{background:var(--ink);color:var(--btn-fg)}
+button:hover{border-color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#status{font-family:var(--font-mono);font-size:.85rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.hint{margin:0;color:var(--ink-soft);font-size:.92rem;line-height:1.5}
+.game-title{margin:0 0 .5rem;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft)}
+#log{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(8.6rem,1fr));gap:4px 10px;
+  font-family:var(--font-mono);font-size:.84rem;font-variant-numeric:tabular-nums}
+#log li{display:flex;gap:.55rem;padding:3px 0}
+#log .n{color:var(--ink-soft);min-width:1.9rem}
+#log .m{min-width:3.2rem}
+#log .m.todo{color:var(--ink-soft);opacity:.55}
+#log .m.cur{color:var(--accent);font-weight:500}
+
+/* scene */
+.f-t,.f-l,.f-r{stroke:var(--ink);stroke-width:1;stroke-linejoin:round}
+.f-t{fill:var(--top)} .f-l{fill:var(--side-l)} .f-r{fill:var(--side-r)}
+.line{fill:none;stroke:var(--ink);stroke-width:1;stroke-linejoin:round;stroke-linecap:round}
+.thin{fill:none;stroke:var(--ink);stroke-width:.6;opacity:.55}
+.sq-l{fill:var(--sq-l)} .sq-d{fill:var(--sq-d)}
+.hatch{stroke:var(--ink);stroke-width:.5;opacity:.2}
+.lbl{font-family:var(--font-mono);font-size:9px;fill:var(--ink-soft)}
+.plate-t{font-family:var(--font-mono);font-size:6.5px;fill:var(--ink-soft);letter-spacing:.06em}
+.shadow{fill:var(--ink);opacity:.07}
+.dial{fill:var(--top);stroke:var(--ink);stroke-width:1}
+.tick{stroke:var(--ink);stroke-width:.8}
+.hand{stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.hand-dot{fill:var(--ink)}
+
+.pc{stroke:var(--pl);stroke-width:1.1;stroke-linejoin:round}
+.pw .pc{fill:var(--pw)} .pb .pc{fill:var(--pb)}
+.pd{fill:none;stroke:var(--pl);stroke-width:.85;stroke-linecap:round}
+.dotp{fill:var(--pl)}
+.shade{fill:url(#shade);stroke:none;pointer-events:none}
+.pshadow{fill:var(--ink);opacity:.14}
+.piece{cursor:pointer}
+.tray-piece{cursor:default}
+.hit{fill:transparent;cursor:pointer;outline:none}
+.hit:focus-visible{stroke:var(--accent);stroke-width:2}
+#hl{pointer-events:none}
+.hl-last{fill:var(--accent);opacity:.13}
+.hl-sel{fill:var(--accent);fill-opacity:.2;stroke:var(--accent);stroke-width:1.5}
+.dot{fill:var(--accent);opacity:.6}
+.ring{fill:none;stroke:var(--accent);stroke-width:1.8}
+.hl-mate{fill:var(--danger);opacity:.25}
+
+/* embed mode (?embed=1): used by the portfolio home page, which sets the theme and sizes the iframe */
+/* transparent so the host page's own background (and its fade) shows through; an iframe only stays
+   transparent when its color-scheme matches the host page's, which is the default light */
+html.embed, html.embed[data-theme]{color-scheme:light}
+html.embed body{margin:0;background:transparent}
+/* same text smoothing as the host page (Tailwind's `antialiased`), so text isn't heavier here on macOS */
+html.embed{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+/* the host page sizes the iframe to fit, so never show a scrollbar */
+html.embed, html.embed body{overflow:hidden}
+/* dragging across the board or buttons shouldn't select their text */
+html.embed{-webkit-user-select:none;user-select:none}
+/* match the host page's 300ms theme fade */
+html.embed *{transition:fill .3s,stroke .3s,color .3s,background-color .3s,border-color .3s}
+html.embed .wrap{max-width:none;padding:0;gap:10px}
+html.embed .head, html.embed .hint, html.embed #game-title, html.embed #log{display:none}
+/* plain text links instead of boxed buttons, like the links in the host page's intro */
+html.embed button{padding:0;border:0;border-radius:0;background:none;color:var(--ink);font-size:.85rem;font-weight:400}
+html.embed button:hover{text-decoration:underline;text-underline-offset:4px}
+/* same color as the host page's secondary text (e.g. the /work descriptions):
+   Tailwind zinc-400 in dark mode, zinc-600 in light mode */
+html.embed[data-theme="dark"] button{color:oklch(70.5% 0.015 286.067)}
+html.embed[data-theme="light"] button{color:oklch(44.2% 0.017 285.786)}
+html.embed .controls{gap:12px}
+/* keep the status on the same line as the links (e.g. at checkmate) whenever there's room;
+   very narrow frames, like phones, still wrap it underneath */
+@media (min-width:440px){
+  html.embed .controls{flex-wrap:nowrap}
+  html.embed .controls button{flex-shrink:0;white-space:nowrap}
+  html.embed #status{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="head">
+    <h1>Isometric chess set</h1>
+    <p class="meta">No. 12 · SVG + Motion · Staunton set on a card table</p>
+  </header>
+
+  <div class="stage">
+    <svg id="scene" role="img" aria-label="Isometric line drawing of a chess set on a table, with a chess clock and a tray for captured pieces">
+      <defs>
+        <linearGradient id="shade" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0" stop-color="#000" stop-opacity="0"/>
+          <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+          <stop offset="1" stop-color="#000" stop-opacity=".17"/>
+        </linearGradient>
+        <pattern id="hatch" width="4.5" height="4.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)">
+          <line class="hatch" x1="0" y1="0" x2="0" y2="4.5"/>
+        </pattern>
+        <filter id="blur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="9"/></filter>
+      </defs>
+    </svg>
+  </div>
+
+  <section class="panel">
+    <div class="controls">
+      <button id="play" class="primary" type="button">Replay the Opera Game</button>
+      <button id="reset" type="button">Reset board</button>
+      <span id="status" aria-live="polite">White to move</span>
+    </div>
+    <p class="hint">Click a piece, then one of the marked squares. Pieces follow their movement rules, including castling and promotion; check isn't enforced.</p>
+    <div>
+      <p class="game-title" id="game-title">Paul Morphy vs. Duke Karl &amp; Count Isouard · Paris Opera, 1858</p>
+      <ol id="log"></ol>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.js"></script>
+<script>
+(() => {
+// ---------- projection ----------
+const T = 44, B = 22, H = 14, TH = 34, C = 0.8660254, S = 0.5, E = 0.5774;
+const P = (x, y, z = 0) => [(x - y) * C, (x + y) * S - z];
+const X0 = -B - 0.7 * T, X1 = 8 * T + B + 3.4 * T, Y0 = -B - 0.7 * T, Y1 = 8 * T + B + 2.4 * T;
+const ZT = -H, ZB = -H - TH;
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('scene');
+const f2 = p => p[0].toFixed(2) + ',' + p[1].toFixed(2);
+const poly = pts => pts.map(f2).join(' ');
+const quad = (x0, y0, x1, y1, z) => poly([P(x0, y0, z), P(x1, y0, z), P(x1, y1, z), P(x0, y1, z)]);
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+const ground = z => `matrix(${C} ${S} ${-C} ${S} 0 ${-z})`;
+const frontPlane = y0 => `matrix(${C} ${S} 0 1 ${-y0 * C} ${y0 * S})`;   // local u = x, w = -z
+const rightPlane = x0 => `matrix(${C} ${-S} 0 1 ${x0 * C} ${x0 * S})`;   // local u = -y, w = -z
+function box(g, x0, y0, x1, y1, zb, zt) {
+  el('polygon', { class: 'f-l', points: poly([P(x0, y1, zt), P(x1, y1, zt), P(x1, y1, zb), P(x0, y1, zb)]) }, g);
+  el('polygon', { class: 'f-r', points: poly([P(x1, y0, zt), P(x1, y1, zt), P(x1, y1, zb), P(x1, y0, zb)]) }, g);
+  el('polygon', { class: 'f-t', points: quad(x0, y0, x1, y1, zt) }, g);
+}
+
+// viewBox
+const vb = [(X0 - Y1) * C - 12, (X0 + Y0) * S - 50, 0, 0];
+vb[2] = (X1 - Y0) * C + 12 - vb[0];
+vb[3] = (X1 + Y1) * S - (ZB - 14) + 30 - vb[1];
+svg.setAttribute('viewBox', vb.map(v => v.toFixed(1)).join(' '));
+
+// ---------- motion ----------
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const M = window.Motion;
+const cubic = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+function tween(duration, onUpdate, ease = [0.45, 0, 0.2, 1]) {
+  if (reduce || duration <= 0) { onUpdate(1); return Promise.resolve(); }
+  if (M && M.animate) {
+    try {
+      const a = M.animate(0, 1, { duration, ease, onUpdate });
+      return Promise.resolve(a.finished ?? a).catch(() => {}).then(() => onUpdate(1));
+    } catch (e) { /* fall through */ }
+  }
+  return new Promise(res => {
+    const t0 = performance.now();
+    const f = ease === 'linear' ? (t => t) : cubic;
+    const step = now => {
+      const t = Math.min(1, (now - t0) / (duration * 1000));
+      onUpdate(f(t));
+      t < 1 ? requestAnimationFrame(step) : res();
+    };
+    requestAnimationFrame(step);
+  });
+}
+const delay = ms => new Promise(r => setTimeout(r, reduce ? 0 : ms));
+
+// ---------- layers ----------
+const L = {};
+['shadow', 'feet', 'table', 'board', 'labels', 'hl', 'hits', 'pieces', 'trayBack', 'trayPieces', 'trayFront', 'clock', 'flying']
+  .forEach(k => L[k] = el('g', { id: k }, svg));
+
+// ---------- static scene ----------
+// soft floor shadow
+el('polygon', { class: 'shadow', filter: 'url(#blur)', points: poly([P(X0 + 10, Y0 + 30, ZB - 16), P(X1 + 18, Y0 + 30, ZB - 16), P(X1 + 18, Y1 + 18, ZB - 16), P(X0 + 10, Y1 + 18, ZB - 16)]) }, L.shadow);
+// feet
+[[X1 - 30, Y0 + 10], [X0 + 10, Y1 - 30], [X1 - 30, Y1 - 30]].forEach(([x, y]) => box(L.feet, x, y, x + 20, y + 20, ZB - 14, ZB));
+// table slab
+box(L.table, X0, Y0, X1, Y1, ZB, ZT);
+{
+  const fg = el('g', { transform: frontPlane(Y1) }, L.table);
+  const w0 = -ZT + 6, w1 = -ZB - 6, gap = 10, n = 3, span = (X1 - X0 - gap * (n + 1)) / n;
+  for (let i = 0; i < n; i++) {
+    const u0 = X0 + gap + i * (span + gap);
+    el('rect', { class: 'line', x: u0, y: w0, width: span, height: w1 - w0, rx: 1.5 }, fg);
+    const cx = u0 + span / 2;
+    if (i === 1) {
+      el('rect', { class: 'line', x: cx - 34, y: w0 + 4, width: 68, height: 9, rx: 1 }, fg);
+      const t = el('text', { class: 'plate-t', x: cx, y: w0 + 10.6, 'text-anchor': 'middle' }, fg);
+      t.textContent = 'CHESSMEN';
+    }
+    el('path', { class: 'line', d: `M${cx - 14},${w1 - 6} q14,6 28,0` }, fg);
+  }
+  const rg = el('g', { transform: rightPlane(X1) }, L.table);
+  const u0 = -Y1 + gap, u1 = -Y0 - gap;
+  el('rect', { class: 'line', x: u0, y: w0, width: u1 - u0, height: w1 - w0, rx: 1.5 }, rg);
+  el('path', { class: 'line', d: `M${(u0 + u1) / 2 - 14},${w1 - 6} q14,6 28,0` }, rg);
+}
+// brass plate on the table top
+{
+  const pg = el('g', { transform: ground(ZT) }, L.table);
+  const x = 8 * T + B + 0.55 * T, y = Y1 - 0.95 * T;
+  el('rect', { class: 'line', x, y, width: 2.3 * T, height: 0.5 * T, rx: 2 }, pg);
+  const t = el('text', { class: 'plate-t', x: x + 1.15 * T, y: y + 0.25 * T + 2.3, 'text-anchor': 'middle' }, pg);
+  t.textContent = 'OPERA GAME · 1858';
+}
+// board
+box(L.board, -B, -B, 8 * T + B, 8 * T + B, ZT, 0);
+{
+  let dark = '';
+  for (let y = 0; y < 8; y++) for (let f = 0; f < 8; f++) {
+    const q = quad(f * T, y * T, (f + 1) * T, (y + 1) * T, 0);
+    if ((f + y) % 2) dark += 'M' + q + 'Z';
+    else el('polygon', { class: 'sq-l', points: q }, L.board);
+  }
+  el('path', { class: 'sq-d', d: dark }, L.board);
+  el('path', { d: dark, fill: 'url(#hatch)' }, L.board);
+  el('polygon', { class: 'line', points: quad(0, 0, 8 * T, 8 * T, 0), 'stroke-width': 1.2 }, L.board);
+  el('polygon', { class: 'thin', points: quad(-B + 5, -B + 5, 8 * T + B - 5, 8 * T + B - 5, 0) }, L.board);
+  const lg = el('g', { transform: ground(0) }, L.labels);
+  for (let i = 0; i < 8; i++) {
+    const a = el('text', { class: 'lbl', x: (i + .5) * T, y: 8 * T + B / 2 + 3, 'text-anchor': 'middle' }, lg);
+    a.textContent = 'abcdefgh'[i];
+    const r = el('text', { class: 'lbl', x: 8 * T + B / 2, y: (i + .5) * T + 3, 'text-anchor': 'middle' }, lg);
+    r.textContent = 8 - i;
+  }
+}
+// tray for captured pieces
+const TY0 = 8 * T + B + 0.35 * T, TY1 = 8 * T + B + 2.05 * T, TW = 8 * T, TWH = 7;
+{
+  el('polygon', { class: 'f-l', points: quad(0, TY0, TW, TY1, ZT) }, L.trayBack);
+  el('polygon', { class: 'f-r', points: poly([P(0, TY0, ZT), P(TW, TY0, ZT), P(TW, TY0, ZT + TWH), P(0, TY0, ZT + TWH)]) }, L.trayBack);
+  el('polygon', { class: 'f-l', points: poly([P(0, TY0, ZT), P(0, TY1, ZT), P(0, TY1, ZT + TWH), P(0, TY0, ZT + TWH)]) }, L.trayBack);
+  el('line', { class: 'thin', x1: P(0, (TY0 + TY1) / 2, ZT)[0], y1: P(0, (TY0 + TY1) / 2, ZT)[1], x2: P(TW, (TY0 + TY1) / 2, ZT)[0], y2: P(TW, (TY0 + TY1) / 2, ZT)[1] }, L.trayBack);
+  el('polygon', { class: 'f-l', points: poly([P(0, TY1, ZT + TWH), P(TW, TY1, ZT + TWH), P(TW, TY1, ZT), P(0, TY1, ZT)]) }, L.trayFront);
+  el('polygon', { class: 'f-r', points: poly([P(TW, TY0, ZT + TWH), P(TW, TY1, ZT + TWH), P(TW, TY1, ZT), P(TW, TY0, ZT)]) }, L.trayFront);
+  el('polygon', { class: 'f-t', points: poly([P(0, TY0, ZT + TWH), P(TW, TY0, ZT + TWH), P(TW, TY1, ZT + TWH), P(0, TY1, ZT + TWH), P(0, TY0, ZT + TWH),
+    P(2, TY0 + 2, ZT + TWH), P(2, TY1 - 2, ZT + TWH), P(TW - 2, TY1 - 2, ZT + TWH), P(TW - 2, TY0 + 2, ZT + TWH), P(2, TY0 + 2, ZT + TWH)]), 'fill-rule': 'evenodd' }, L.trayFront);
+}
+const traySlot = (row, i) => P(0.45 * T + i * 0.95 * T, TY0 + (row ? 1.25 : 0.45) * T, ZT);
+
+// chess clock
+const CX0 = 8 * T + B + 0.55 * T, CX1 = CX0 + 2.3 * T, CY0 = 2.7 * T, CY1 = CY0 + 0.95 * T, CZT = ZT + 1.3 * T;
+const DIAL_U = [CX0 + 0.58 * T, CX0 + 1.72 * T], DIAL_W = -(ZT + 0.62 * T), DIAL_R = 0.38 * T;
+const clock = { hands: [], ang: [0, 0], btn: [], bh: [7, 7] };
+{
+  box(L.clock, CX0, CY0, CX1, CY1, ZT, CZT);
+  const fg = el('g', { transform: frontPlane(CY1) }, L.clock);
+  DIAL_U.forEach((u, i) => {
+    el('circle', { class: 'dial', cx: u, cy: DIAL_W, r: DIAL_R }, fg);
+    for (let k = 0; k < 12; k++) {
+      const a = k * Math.PI / 6, r0 = DIAL_R - (k % 3 ? 3 : 5);
+      el('line', { class: 'tick', x1: u + Math.sin(a) * r0, y1: DIAL_W - Math.cos(a) * r0, x2: u + Math.sin(a) * (DIAL_R - 1.5), y2: DIAL_W - Math.cos(a) * (DIAL_R - 1.5) }, fg);
+    }
+    clock.hands[i] = el('line', { class: 'hand', x1: u, y1: DIAL_W, x2: u, y2: DIAL_W - DIAL_R * 0.72 }, fg);
+    el('circle', { class: 'hand-dot', cx: u, cy: DIAL_W, r: 1.8 }, fg);
+    const t = el('text', { class: 'plate-t', x: u, y: DIAL_W + DIAL_R + 6.5, 'text-anchor': 'middle' }, fg);
+    t.textContent = i ? 'BLACK' : 'WHITE';
+    clock.btn[i] = el('g', {}, L.clock);
+  });
+}
+function drawBtn(i) {
+  const g = clock.btn[i]; g.innerHTML = '';
+  const cx = DIAL_U[i], cy = (CY0 + CY1) / 2, s = 0.17 * T;
+  box(g, cx - s, cy - s, cx + s, cy + s, CZT, CZT + clock.bh[i]);
+}
+function setHand(i) { clock.hands[i].setAttribute('transform', `rotate(${clock.ang[i].toFixed(2)} ${DIAL_U[i]} ${DIAL_W})`); }
+function pressClock(color) {
+  const i = color === 'w' ? 0 : 1, o = 1 - i;
+  const b0 = [...clock.bh], a0 = clock.ang[i];
+  return tween(0.28, t => {
+    clock.bh[i] = b0[i] + (2.5 - b0[i]) * t;
+    clock.bh[o] = b0[o] + (7 - b0[o]) * t;
+    clock.ang[i] = a0 + 30 * t;
+    drawBtn(0); drawBtn(1); setHand(i);
+  });
+}
+function resetClock() { clock.bh = [7, 7]; clock.ang = [0, 0]; drawBtn(0); drawBtn(1); setHand(0); setHand(1); }
+
+// ---------- pieces ----------
+function cr(pts) {
+  let d = '';
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${f2(c1)} ${f2(c2)} ${f2(p2)}`;
+  }
+  return d;
+}
+function lathe(prof) {
+  const R = prof.map(([h, r]) => [r, -h]);
+  const Lf = prof.slice().reverse().map(([h, r]) => [-r, -h]);
+  const r0 = prof[0][1], [hn, rn] = prof[prof.length - 1];
+  return `M${-r0},0 A${r0} ${(r0 * E).toFixed(2)} 0 0 0 ${r0},0` + cr(R) +
+    ` A${rn} ${(rn * E).toFixed(2)} 0 0 0 ${-rn},${-hn}` + cr(Lf) + 'Z';
+}
+const solid = d => `<path class="pc" d="${d}"/><path class="shade" d="${d}"/>`;
+const ring = (h, r) => `<path class="pd" d="M${-r},${-h} A${r} ${(r * E).toFixed(2)} 0 0 0 ${r},${-h}"/>`;
+const ell = (h, r, cls = 'pc') => `<ellipse class="${cls}" cx="0" cy="${-h}" rx="${r}" ry="${(r * E).toFixed(2)}"/>`;
+const ball = (y, r) => `<circle class="pc" cx="0" cy="${y}" r="${r}"/><circle class="shade" cx="0" cy="${y}" r="${r}"/>`;
+
+const PIECES = {
+  p: () => solid(lathe([[0, 13], [3.5, 13], [5, 10], [7, 8], [11, 6], [17, 4.6], [19, 7.2], [21, 4.2]])) +
+    ring(3.5, 13) + ring(19, 7.2) + ball(-27.5, 7),
+  r: () => {
+    const d = lathe([[0, 14], [3.5, 14], [5, 10.5], [8, 8.6], [22, 7.6], [25, 10], [33, 10]]);
+    const ay = x => (-33 + E * Math.sqrt(100 - x * x)).toFixed(2);
+    return solid(d) + ring(3.5, 14) + ring(25, 10) + ring(29.5, 10) + ell(33, 10) + ell(33, 6, 'pd') +
+      [-6, -2, 2, 6].map(x => `<path class="pd" d="M${x},${ay(x)} v3.6"/>`).join('');
+  },
+  n: c => {
+    const flip = c === 'b' ? ' transform="scale(-1 1)"' : '';
+    const head = 'M-8,-8 C-10,-18 -8,-27 -3,-33 L-1,-40 L3,-34 C9,-33 14,-28 16,-22 L17,-18 C16,-15 13,-15 11,-16 C8,-17 5,-17 3,-15 C5,-12 8,-10 9,-8 Z';
+    return solid(lathe([[0, 14], [3.5, 14], [5, 10.5], [9, 9.5]])) + ring(3.5, 14) +
+      `<g${flip}><path class="pc" d="${head}"/><path class="shade" d="${head}"/>` +
+      `<path class="pd" d="M-3,-33 C-7,-26 -8,-18 -6,-10"/><path class="pd" d="M-1.5,-30 C-4,-24 -4.5,-18 -3,-12"/>` +
+      `<circle class="dotp" cx="4.5" cy="-27" r="1.3"/><circle class="dotp" cx="14.2" cy="-20" r=".9"/></g>`;
+  },
+  b: () => {
+    const m = 'M-4.5,-25 C-9.5,-30 -8,-38 0,-44 C8,-38 9.5,-30 4.5,-25 Z';
+    return solid(lathe([[0, 13], [3.5, 13], [5, 9.5], [8, 7.6], [21, 4.6], [23, 7.5], [25, 4.4]])) +
+      ring(3.5, 13) + ring(23, 7.5) + `<path class="pc" d="${m}"/><path class="shade" d="${m}"/>` +
+      `<path class="pd" d="M2.8,-38.5 L-2.6,-32"/>` + ball(-46.6, 2.6);
+  },
+  q: () => {
+    const r = 9.5, h = 36, ay = x => -h + E * Math.sqrt(Math.max(0, r * r - x * x));
+    const xs = [-9.5, -7.1, -4.75, -2.4, 0, 2.4, 4.75, 7.1, 9.5];
+    const crown = `M-9.5,${-h} ` + xs.map((x, i) => `L${x},${(ay(x) - (i % 2 ? 1.5 : 6.5)).toFixed(2)}`).join(' ') +
+      ` L9.5,${-h} A${r} ${(r * E).toFixed(2)} 0 0 1 -9.5,${-h} Z`;
+    return solid(lathe([[0, 14], [3.5, 14], [5, 10.5], [9, 8], [26, 5.2], [28, 8.6], [30, 6], [36, 9.5]])) +
+      ring(3.5, 14) + ring(28, 8.6) + ell(h, r) + `<path class="pc" d="${crown}"/><path class="shade" d="${crown}"/>` + ball(-45, 3);
+  },
+  k: () => {
+    const dome = `M-6,-44 C-6,-50.5 6,-50.5 6,-44 A6 ${(6 * E).toFixed(2)} 0 0 1 -6,-44 Z`;
+    const cross = 'M-1.7,-49 L-1.7,-53 L-5.2,-53 L-5.2,-56.4 L-1.7,-56.4 L-1.7,-60 L1.7,-60 L1.7,-56.4 L5.2,-56.4 L5.2,-53 L1.7,-53 L1.7,-49 Z';
+    return solid(lathe([[0, 14], [3.5, 14], [5, 10.5], [9, 8.4], [30, 5.6], [32, 9], [34, 6.5], [40, 8.5], [44, 6]])) +
+      ring(3.5, 14) + ring(32, 9) + ring(40, 8.5) + `<path class="pc" d="${dome}"/><path class="shade" d="${dome}"/>` +
+      `<path class="pc" d="${cross}"/>`;
+  }
+};
+const NAMES = { p: 'pawn', n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' };
+
+function apply(p) {
+  p.g.setAttribute('transform', `translate(${p.sx.toFixed(2)} ${p.sy.toFixed(2)}) scale(${p.scale.toFixed(3)})`);
+  p.body.setAttribute('transform', `translate(0 ${(-p.lift).toFixed(2)}) rotate(${p.rot.toFixed(2)} 12 0)`);
+  const k = Math.max(.45, 1 - p.lift / 90);
+  p.sh.setAttribute('rx', (15 * k).toFixed(2)); p.sh.setAttribute('ry', (8.6 * k).toFixed(2));
+}
+const sqScreen = (f, y) => P((f + .5) * T, (y + .5) * T, 0);
+function makePiece(t, c, f, y) {
+  const g = el('g', { class: 'piece ' + (c === 'w' ? 'pw' : 'pb') });
+  const sh = el('ellipse', { class: 'pshadow', cx: 0, cy: 0, rx: 15, ry: 8.6 }, g);
+  const body = el('g', {}, g);
+  body.innerHTML = PIECES[t](c);
+  const [sx, sy] = sqScreen(f, y);
+  const p = { t, c, f, y, g, body, sh, sx, sy, lift: 0, scale: 1, rot: 0, moved: false, inTray: false };
+  g.addEventListener('click', e => { e.stopPropagation(); if (!p.inTray) onSquare(p.f, p.y); });
+  apply(p);
+  return p;
+}
+function sortPieces() {
+  const all = [];
+  for (let y = 0; y < 8; y++) for (let f = 0; f < 8; f++) if (board[y][f]) all.push(board[y][f]);
+  all.sort((a, b) => (a.f + a.y) - (b.f + b.y)).forEach(p => L.pieces.appendChild(p.g));
+}
+
+// ---------- game state ----------
+const START = ['rnbqkbnr', 'pppppppp', '........', '........', '........', '........', 'PPPPPPPP', 'RNBQKBNR'];
+const FILES = 'abcdefgh';
+const alg = (f, y) => FILES[f] + (8 - y);
+const parse = s => [FILES.indexOf(s[0]), 8 - +s[1]];
+const OPERA = [['e2e4', 'e4'], ['e7e5', 'e5'], ['g1f3', 'Nf3'], ['d7d6', 'd6'], ['d2d4', 'd4'], ['c8g4', 'Bg4'], ['d4e5', 'dxe5'], ['g4f3', 'Bxf3'],
+  ['d1f3', 'Qxf3'], ['d6e5', 'dxe5'], ['f1c4', 'Bc4'], ['g8f6', 'Nf6'], ['f3b3', 'Qb3'], ['d8e7', 'Qe7'], ['b1c3', 'Nc3'], ['c7c6', 'c6'],
+  ['c1g5', 'Bg5'], ['b7b5', 'b5'], ['c3b5', 'Nxb5'], ['c6b5', 'cxb5'], ['c4b5', 'Bxb5+'], ['b8d7', 'Nbd7'], ['e1c1', 'O-O-O'], ['a8d8', 'Rd8'],
+  ['d1d7', 'Rxd7'], ['d8d7', 'Rxd7'], ['h1d1', 'Rd1'], ['e7e6', 'Qe6'], ['b5d7', 'Bxd7+'], ['f6d7', 'Nxd7'], ['b3b8', 'Qb8+'], ['d7b8', 'Nxb8'], ['d1d8', 'Rd8#']];
+
+let board, turn, sel, legal, last, busy, gen = 0, played, operaLive, operaIdx, auto = false, over, tray;
+const inb = (f, y) => f >= 0 && f < 8 && y >= 0 && y < 8;
+
+function movesFrom(f, y) {
+  const p = board[y][f], out = [];
+  const empty = (F, Y) => inb(F, Y) && !board[Y][F];
+  const slide = (dirs, many) => {
+    for (const [dx, dy] of dirs) {
+      let F = f + dx, Y = y + dy;
+      while (inb(F, Y)) {
+        const q = board[Y][F];
+        if (!q) out.push([F, Y]); else { if (q.c !== p.c) out.push([F, Y]); break; }
+        if (!many) break; F += dx; Y += dy;
+      }
+    }
+  };
+  const D = [[1, 1], [1, -1], [-1, 1], [-1, -1]], O = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  switch (p.t) {
+    case 'p': {
+      const d = p.c === 'w' ? -1 : 1, start = p.c === 'w' ? 6 : 1;
+      if (empty(f, y + d)) { out.push([f, y + d]); if (y === start && empty(f, y + 2 * d)) out.push([f, y + 2 * d]); }
+      for (const dx of [-1, 1]) { const q = inb(f + dx, y + d) && board[y + d][f + dx]; if (q && q.c !== p.c) out.push([f + dx, y + d]); }
+      break;
+    }
+    case 'n': slide([[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]], false); break;
+    case 'b': slide(D, true); break;
+    case 'r': slide(O, true); break;
+    case 'q': slide(D.concat(O), true); break;
+    case 'k': {
+      slide(D.concat(O), false);
+      if (!p.moved) {
+        const rk = board[y][7], rq = board[y][0];
+        if (rk && rk.t === 'r' && rk.c === p.c && !rk.moved && !board[y][5] && !board[y][6]) out.push([6, y]);
+        if (rq && rq.t === 'r' && rq.c === p.c && !rq.moved && !board[y][1] && !board[y][2] && !board[y][3]) out.push([2, y]);
+      }
+    }
+  }
+  return out;
+}
+
+// ---------- highlights & hits ----------
+function renderHL() {
+  L.hl.innerHTML = '';
+  if (last) last.forEach(([f, y]) => el('polygon', { class: 'hl-last', points: quad(f * T, y * T, (f + 1) * T, (y + 1) * T, 0) }, L.hl));
+  if (sel) {
+    el('polygon', { class: 'hl-sel', points: quad(sel[0] * T, sel[1] * T, (sel[0] + 1) * T, (sel[1] + 1) * T, 0) }, L.hl);
+    legal.forEach(([f, y]) => {
+      const [x, yy] = sqScreen(f, y);
+      if (board[y][f]) el('ellipse', { class: 'ring', cx: x, cy: yy, rx: 19, ry: 11 }, L.hl);
+      else el('ellipse', { class: 'dot', cx: x, cy: yy, rx: 6, ry: 3.5 }, L.hl);
+    });
+  }
+  if (over) el('polygon', { class: 'hl-mate', points: quad(over[0] * T, over[1] * T, (over[0] + 1) * T, (over[1] + 1) * T, 0) }, L.hl);
+}
+for (let y = 0; y < 8; y++) for (let f = 0; f < 8; f++) {
+  const h = el('polygon', { class: 'hit', points: quad(f * T, y * T, (f + 1) * T, (y + 1) * T, 0), tabindex: 0, role: 'button', 'aria-label': alg(f, y) }, L.hits);
+  h.addEventListener('click', () => onSquare(f, y));
+  h.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSquare(f, y); } });
+}
+function labelHits() {
+  [...L.hits.children].forEach((h, i) => {
+    const f = i % 8, y = Math.floor(i / 8), p = board[y][f];
+    h.setAttribute('aria-label', alg(f, y) + (p ? ', ' + (p.c === 'w' ? 'white ' : 'black ') + NAMES[p.t] : ''));
+  });
+}
+
+// ---------- moves ----------
+function liftTo(p, to) { const l0 = p.lift; return tween(0.16, t => { p.lift = l0 + (to - l0) * t; apply(p); }); }
+
+async function hop(p, A, Bp, height, dur, scaleTo) {
+  L.flying.appendChild(p.g);
+  const s0 = p.scale, l0 = p.lift;
+  await tween(dur, t => {
+    p.sx = A[0] + (Bp[0] - A[0]) * t; p.sy = A[1] + (Bp[1] - A[1]) * t;
+    p.lift = l0 * (1 - t) + 4 * height * t * (1 - t);
+    if (scaleTo != null) p.scale = s0 + (scaleTo - s0) * t;
+    apply(p);
+  });
+  p.lift = 0; apply(p);
+  await tween(0.2, t => {
+    const s = 1 - 0.08 * Math.sin(Math.PI * t);
+    p.body.setAttribute('transform', `scale(${(2 - s).toFixed(3)} ${s.toFixed(3)})`);
+  }, 'linear');
+  apply(p);
+}
+function moveOnBoard(p, f0, y0, f1, y1) {
+  const dist = Math.hypot(f1 - f0, y1 - y0);
+  const height = (p.t === 'n' ? 30 : 16) + dist * 5;
+  return hop(p, [p.sx, p.sy], sqScreen(f1, y1), height, Math.min(0.85, 0.4 + dist * 0.07));
+}
+async function capture(q) {
+  q.inTray = true; q.g.classList.add('tray-piece');
+  const row = q.c === 'b' ? 0 : 1, i = tray[row]++;
+  await hop(q, [q.sx, q.sy], traySlot(row, i), 42, 0.62, 0.7);
+  q.depth = i + row * 10;
+  q.g.__p = q;
+  [...L.trayPieces.children, q.g].map(g => g.__p)
+    .sort((a, b) => a.depth - b.depth).forEach(k => L.trayPieces.appendChild(k.g));
+}
+function sanFor(p, f0, y0, f1, y1, cap) {
+  if (p.t === 'k' && Math.abs(f1 - f0) === 2) return f1 > f0 ? 'O-O' : 'O-O-O';
+  const promo = p.t === 'p' && (y1 === 0 || y1 === 7) ? '=Q' : '';
+  if (p.t === 'p') return (cap ? FILES[f0] + 'x' : '') + alg(f1, y1) + promo;
+  return p.t.toUpperCase() + (cap ? 'x' : '') + alg(f1, y1);
+}
+
+async function play(f0, y0, f1, y1) {
+  const myGen = gen;
+  busy = true;
+  const p = board[y0][f0], cap = board[y1][f1];
+  const key = alg(f0, y0) + alg(f1, y1);
+  let san;
+  if (operaLive && OPERA[operaIdx] && OPERA[operaIdx][0] === key) { san = OPERA[operaIdx][1]; operaIdx++; }
+  else { san = sanFor(p, f0, y0, f1, y1, cap); operaLive = false; }
+  played.push(san);
+  board[y0][f0] = null; board[y1][f1] = p; p.f = f1; p.y = y1; p.moved = true;
+  sel = null; legal = []; last = [[f0, y0], [f1, y1]];
+  renderHL(); renderLog(); setStatus(true);
+
+  const jobs = [pressClock(p.c)];
+  const dur = Math.min(0.85, 0.4 + Math.hypot(f1 - f0, y1 - y0) * 0.07);
+  if (cap) jobs.push(delay(dur * 520).then(() => capture(cap)));
+  jobs.push(moveOnBoard(p, f0, y0, f1, y1));
+  if (p.t === 'k' && Math.abs(f1 - f0) === 2) {
+    const rf0 = f1 > f0 ? 7 : 0, rf1 = f1 > f0 ? 5 : 3, rook = board[y0][rf0];
+    board[y0][rf0] = null; board[y0][rf1] = rook; rook.f = rf1; rook.moved = true;
+    jobs.push(delay(160).then(() => moveOnBoard(rook, rf0, y0, rf1, y0)));
+  }
+  await Promise.all(jobs);
+  if (myGen !== gen) return;
+  if (p.t === 'p' && (y1 === 0 || y1 === 7)) {
+    p.t = 'q'; p.body.innerHTML = PIECES.q(p.c);
+    await tween(0.3, t => { p.lift = 10 * Math.sin(Math.PI * t); apply(p); });
+  }
+  sortPieces();
+  turn = turn === 'w' ? 'b' : 'w';
+  if (operaLive && operaIdx === OPERA.length) await mate(myGen);
+  if (myGen !== gen) return;
+  busy = false;
+  labelHits(); renderHL(); setStatus(); updateBtn();
+}
+
+async function mate(myGen) {
+  let king;
+  for (const row of board) for (const q of row) if (q && q.t === 'k' && q.c === 'b') king = q;
+  over = [king.f, king.y]; renderHL();
+  await delay(350);
+  if (myGen !== gen) return;
+  await tween(0.55, t => { king.rot = 84 * t; apply(king); }, [0.55, 0, 1, 0.45]);
+  await tween(0.35, t => { king.rot = 84 - 9 * Math.sin(Math.PI * t) * (1 - t); apply(king); }, 'linear');
+}
+
+// ---------- input ----------
+function onSquare(f, y) {
+  if (busy || auto || over) return;
+  if (sel && legal.some(([F, Y]) => F === f && Y === y)) { const s = sel; deselect(); play(s[0], s[1], f, y); return; }
+  const p = board[y][f];
+  if (p && p.c === turn && !(sel && sel[0] === f && sel[1] === y)) {
+    deselect(); sel = [f, y]; legal = movesFrom(f, y); liftTo(p, 7); renderHL(); return;
+  }
+  deselect(); renderHL();
+}
+function deselect() {
+  if (sel) { const p = board[sel[1]][sel[0]]; if (p) liftTo(p, 0); }
+  sel = null; legal = [];
+}
+
+// ---------- UI ----------
+const statusEl = document.getElementById('status'), logEl = document.getElementById('log');
+const playBtn = document.getElementById('play'), titleEl = document.getElementById('game-title');
+function setStatus(moving) {
+  const n = Math.floor((played.length - 1) / 2) + 1, dots = played.length % 2 ? '.' : '…';
+  const lastTxt = played.length ? `${n}${dots} ${played[played.length - 1]}` : '';
+  if (over) { statusEl.textContent = `${lastTxt} · Checkmate, 1–0`; return; }
+  if (moving) { statusEl.textContent = lastTxt; return; }
+  statusEl.textContent = (lastTxt ? lastTxt + ' · ' : '') + (turn === 'w' ? 'White' : 'Black') + ' to move';
+}
+function renderLog() {
+  const list = operaLive ? OPERA.map(m => m[1]) : played;
+  titleEl.textContent = operaLive ? 'Paul Morphy vs. Duke Karl & Count Isouard · Paris Opera, 1858' : 'Your game';
+  logEl.innerHTML = '';
+  if (!list.length) { logEl.innerHTML = '<li><span class="m todo">No moves yet</span></li>'; return; }
+  for (let i = 0; i < list.length; i += 2) {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="n">${i / 2 + 1}.</span>`;
+    [i, i + 1].forEach(j => {
+      if (j >= list.length) return;
+      const s = document.createElement('span');
+      s.className = 'm' + (j >= played.length ? ' todo' : '') + (j === played.length - 1 ? ' cur' : '');
+      s.textContent = list[j];
+      li.appendChild(s);
+    });
+    logEl.appendChild(li);
+  }
+}
+function updateBtn() {
+  playBtn.textContent = auto ? 'Pause' :
+    (operaLive && operaIdx > 0 && operaIdx < OPERA.length ? 'Resume' : 'Replay the Opera Game');
+}
+async function runAuto() {
+  const myGen = gen;
+  while (auto && operaLive && operaIdx < OPERA.length && myGen === gen) {
+    if (busy) { await delay(40); continue; }
+    const [mv] = OPERA[operaIdx];
+    const [f0, y0] = parse(mv.slice(0, 2)), [f1, y1] = parse(mv.slice(2));
+    await play(f0, y0, f1, y1);
+    await delay(operaIdx < OPERA.length ? 260 : 0);
+  }
+  if (myGen === gen) { auto = false; updateBtn(); }
+}
+playBtn.addEventListener('click', () => {
+  if (auto) { auto = false; updateBtn(); return; }
+  if (!operaLive || operaIdx >= OPERA.length) reset(false);
+  if (sel) { deselect(); renderHL(); }
+  auto = true; updateBtn(); runAuto();
+});
+document.getElementById('reset').addEventListener('click', () => reset(true));
+svg.addEventListener('click', e => { if (e.target === svg && sel) { deselect(); renderHL(); } });
+
+function reset(intro) {
+  gen++; auto = false; busy = false; over = null;
+  L.pieces.innerHTML = ''; L.trayPieces.innerHTML = ''; L.flying.innerHTML = '';
+  board = START.map((row, y) => [...row].map((ch, f) => {
+    if (ch === '.') return null;
+    const c = ch === ch.toUpperCase() ? 'w' : 'b';
+    return makePiece(ch.toLowerCase(), c, f, y);
+  }));
+  turn = 'w'; sel = null; legal = []; last = null; played = []; operaLive = true; operaIdx = 0; tray = [0, 0];
+  sortPieces(); resetClock(); labelHits(); renderHL(); renderLog(); setStatus(); updateBtn();
+  if (intro && !reduce) {
+    const myGen = gen; busy = true;
+    const all = [...L.pieces.children];
+    const ps = []; for (const row of board) for (const q of row) if (q) ps.push(q);
+    ps.forEach(q => { q.lift = 26; apply(q); });
+    Promise.all(ps.map((q, i) => delay(i * 14 + (q.f + q.y) * 18).then(() =>
+      tween(0.42, t => { q.lift = 26 * (1 - t); apply(q); }, [0.5, 0, 0.75, 0])
+        .then(() => tween(0.16, t => { const s = 1 - 0.07 * Math.sin(Math.PI * t); q.body.setAttribute('transform', `scale(${(2 - s).toFixed(3)} ${s.toFixed(3)})`); }, 'linear'))
+        .then(() => apply(q)))))
+      .then(() => { if (myGen === gen) busy = false; });
+  }
+}
+reset(true);
+// ?autoplay=1 replays the Opera Game once after the pieces drop in (runAuto waits for the intro)
+if (new URLSearchParams(location.search).has('autoplay')) { auto = true; updateBtn(); runAuto(); }
+})();
+</script>
+</body>
+</html>
