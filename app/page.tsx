@@ -236,6 +236,11 @@ export default function Portfolio() {
           </FadeIn>
           */}
         </div>
+
+        {/* Footer: closing line plus breathing room at the bottom of the page */}
+        <footer
+          className={`mt-8 h-24 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
+        />
       </div>
     </div>
   );
