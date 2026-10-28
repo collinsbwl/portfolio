@@ -22,6 +22,12 @@ const projects: { name: string; desc: string; tech: string; href?: string }[] =
       tech: "Go, Kafka, Mapbox, Prometheus, Grafana, Docker, PostgreSQL",
     },
     {
+      name: "Ivey Draft My Schedule",
+      href: "https://ivey-draft-my-schedule.vercel.app",
+      desc: "A timetable planner for Ivey HBA2 students",
+      tech: "Next.js, React, TypeScript, Vercel",
+    },
+    {
       name: "Song Roulette",
       desc: "A multiplayer iOS music trivia game",
       tech: "Swift, SwiftUI, MusicKit, AVKit, AVFoundation, Bonjour, XCode",
