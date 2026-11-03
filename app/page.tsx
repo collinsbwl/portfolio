@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import { Mail, MoveUpRight } from "lucide-react";
 import { ChessEmbed } from "@/components/chess-embed";
 import { FadeIn } from "@/components/fade-in";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
@@ -17,6 +17,7 @@ export default function Portfolio() {
     {
       role: "Software Engineer intern",
       company: "Bond Brand Loyalty",
+      href: "https://bondbl.com/bond-ai/",
       period: "May 2026 - Aug 2026",
       desc: "Client AI Solutions + Internal Apps",
     },
@@ -24,6 +25,7 @@ export default function Portfolio() {
     {
       role: "Software Engineer intern",
       company: "KGS Group",
+      href: "https://www.kgsgroup.com/about/#heading-2",
       period: "June 2025 - Aug 2025",
       desc: "Internal Platforms",
     },
@@ -31,6 +33,7 @@ export default function Portfolio() {
     {
       role: "Cloud Engineer Intern",
       company: "CIBC",
+      href: "https://cibc.mediaroom.com/2025-05-27-CIBC-launches-in-house-AI-platform-enterprise-wide-after-successful-pilot",
       period: "May 2024 - Aug 2024",
       desc: "Cloud Migrations and AI Integration",
     },
@@ -148,30 +151,37 @@ export default function Portfolio() {
                   /work [1]
                 </h2>
 
-                <div className="space-y-3">
+                {/* While any experience is hovered the others fade, and the hovered one brightens */}
+                <div className="group/list space-y-3">
                   {work.map((item) => (
-                    <div key={`${item.role}-${item.company}`}>
+                    <a
+                      key={`${item.role}-${item.company}`}
+                      href={item.href}
+                      {...(item.href.startsWith("http")
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
+                      className={`group block transition duration-300 group-hover/list:opacity-50 hover:opacity-100! ${
+                        dark
+                          ? "text-zinc-300 hover:text-white"
+                          : "text-zinc-800 hover:text-black"
+                      }`}
+                    >
                       {/*Company*/}
                       <div className="mb-1 text-sm flex items-baseline justify-between">
                         <div className="flex items-baseline gap-2">
-                          <span
-                            className={dark ? "text-zinc-300" : "text-zinc-800"}
-                          >
+                          <span className="group-hover:underline underline-offset-4">
                             {item.company}
                           </span>
-                          <span
-                            className={`text-sm ${dark ? "text-zinc-300" : "text-zinc-800"}`}
-                          >
-                            {" · "}
-                          </span>
+                          <span>{" · "}</span>
 
                           {/*Role*/}
-                          <span
-                            className={`text-md ${
-                              dark ? "text-zinc-300" : "text-zinc-800"
-                            }`}
-                          >
+                          <span>
                             {item.role}
+                            <MoveUpRight
+                              size={12}
+                              aria-hidden="true"
+                              className="ml-1 inline opacity-70"
+                            />
                           </span>
                         </div>
 
@@ -193,7 +203,7 @@ export default function Portfolio() {
                       >
                         {item.desc}
                       </p>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </div>
