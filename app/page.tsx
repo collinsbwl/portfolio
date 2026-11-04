@@ -127,21 +127,13 @@ export default function Portfolio() {
               />
             </header>
           </FadeIn>
-
-          <FadeIn delay={0.1}>
-            <ChessEmbed dark={dark} />
-          </FadeIn>
         </div>
 
         <div className="max-w-2xl">
           {/* Work, Projects, Writing Sections */}
           <FadeIn delay={0.2}>
-            {/* Border Line */}
-            <div
-              className={`border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
-            />
             {/* Work*/}
-            <section className="mt-8">
+            <section>
               <div>
                 <h2
                   className={`mb-3 text-md font-mono ${
@@ -246,6 +238,16 @@ export default function Portfolio() {
           </FadeIn>
           */}
         </div>
+
+        <FadeIn delay={0.5}>
+          {/* Border Line */}
+          <div
+            className={`mt-8 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
+          />
+          <div className="mt-8">
+            <ChessEmbed dark={dark} />
+          </div>
+        </FadeIn>
 
         {/* Footer: closing line plus breathing room at the bottom of the page */}
         <footer
