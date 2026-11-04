@@ -46,7 +46,7 @@ export function ProjectsSection({ dark }: { dark: boolean }) {
   }
   return (
     // While any project is hovered the others fade, and the hovered one brightens.
-    <div className="group/list space-y-5">
+    <div className="group/list space-y-3">
       {projects.map((project) => {
         const Row = project.href ? "a" : "div";
         const link = project.href

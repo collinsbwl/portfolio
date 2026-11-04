@@ -47,7 +47,7 @@ export default function Portfolio() {
     >
       <div className="mx-auto max-w-2xl px-6 py-8">
         <NavBar dark={dark} setDark={setDark} />
-        <div className="mb-8 grid gap-6">
+        <div className="mb-4 grid gap-6">
           <FadeIn delay={0}>
             <header>
               <h1 className="mb-2 text-3xl font-semibold">Collin Sobowale</h1>
@@ -123,7 +123,7 @@ export default function Portfolio() {
 
               {/* Border Line */}
               <div
-                className={`mt-6 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
+                className={`mt-4 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
               />
             </header>
           </FadeIn>
@@ -144,7 +144,7 @@ export default function Portfolio() {
                 </h2>
 
                 {/* While any experience is hovered the others fade, and the hovered one brightens */}
-                <div className="group/list space-y-3">
+                <div className="group/list space-y-2">
                   {work.map((item) => (
                     <a
                       key={`${item.role}-${item.company}`}
@@ -205,7 +205,7 @@ export default function Portfolio() {
           <FadeIn delay={0.4}>
             {/* Border Line */}
             <div
-              className={`mt-8 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
+              className={`mt-6 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
             />
             <section id="projects" className="mt-8">
               <div>
@@ -242,9 +242,9 @@ export default function Portfolio() {
         <FadeIn delay={0.5}>
           {/* Border Line */}
           <div
-            className={`mt-8 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
+            className={`mt-6 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
           />
-          <div className="mt-8">
+          <div className="mt-6">
             <ChessEmbed dark={dark} />
           </div>
         </FadeIn>
