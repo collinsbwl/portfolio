@@ -12,7 +12,7 @@ const projects: { name: string; desc: string; tech: string; href?: string }[] =
     {
       name: "Azure ProjectOS",
       href: "https://github.com/collinsbwl/Azure-ProjectOS",
-      desc: "2nd Place [at] the Microsoft Internal Hackathon",
+      desc: "Category Winner [at] the Microsoft Internal Hackathon",
       tech: "Azure OpenAI, PydanticAI, Python, FastAPI, PostgreSQL",
     },
     {
