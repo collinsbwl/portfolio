@@ -12,8 +12,14 @@ const projects: { name: string; desc: string; tech: string; href?: string }[] =
     {
       name: "Azure ProjectOS",
       href: "https://github.com/collinsbwl/Azure-ProjectOS",
-      desc: "Category Winner [at] the Microsoft Internal Hackathon",
+      desc: "Microsoft Employee Hackathon Track Winner",
       tech: "Azure OpenAI, PydanticAI, Python, FastAPI, PostgreSQL",
+    },
+    {
+      name: "Orbital Archipelago",
+      href: "https://devpost.com/software/orbital-archipelago",
+      desc: "HackWestern Track Winner",
+      tech: "TypeScript, React, Three.js, Gemini, Solana, Rust, PostgreSQL",
     },
     {
       name: "Fleetwatch",
