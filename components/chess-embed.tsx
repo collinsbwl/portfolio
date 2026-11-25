@@ -48,7 +48,7 @@ export function ChessEmbed({ dark }: { dark: boolean }) {
       onLoad={attach}
       title="Interactive isometric chess set"
       style={{ height }}
-      className="mx-auto block w-full max-w-[460px] select-none border-0"
+      className="mx-auto block w-full max-w-[640px] select-none border-0"
     />
   );
 }

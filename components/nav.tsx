@@ -1,5 +1,8 @@
+"use client";
+
 import { MoonStar, Sun } from "lucide-react";
-// import Link from "next/link";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function NavBar({
   dark,
@@ -8,6 +11,8 @@ export function NavBar({
   dark: boolean;
   setDark: (dark: boolean) => void;
 }) {
+  const pathname = usePathname();
+
   return (
     <nav>
       <ul
@@ -32,6 +37,28 @@ export function NavBar({
           </Link>
         </li>
         */}
+        {[
+          { href: "/", label: "home" },
+          { href: "/projects", label: "projects" },
+        ].map(({ href, label }) => (
+          <li key={href}>
+            <Link
+              href={href}
+              aria-current={pathname === href ? "page" : undefined}
+              className={`transition-colors ${
+                pathname === href
+                  ? dark
+                    ? "text-zinc-200"
+                    : "text-zinc-800"
+                  : dark
+                    ? "hover:text-zinc-200"
+                    : "hover:text-zinc-800"
+              }`}
+            >
+              {label}
+            </Link>
+          </li>
+        ))}
         <li>
           <button
             onClick={() => setDark(!dark)}

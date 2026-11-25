@@ -110,6 +110,7 @@ html.embed, html.embed body{overflow:hidden}
 /* dragging across the board or buttons shouldn't select their text */
 html.embed{-webkit-user-select:none;user-select:none}
 /* match the host page's 300ms theme fade */
+html.embed .piece, html.embed .hit{cursor:default;pointer-events:none}
 html.embed *{transition:fill .3s,stroke .3s,color .3s,background-color .3s,border-color .3s}
 html.embed .wrap{max-width:none;padding:0;gap:10px}
 html.embed .head, html.embed .hint, html.embed #game-title, html.embed #log{display:none}
@@ -127,6 +128,14 @@ html.embed .controls{gap:12px}
   html.embed .controls{flex-wrap:nowrap}
   html.embed .controls button{flex-shrink:0;white-space:nowrap}
   html.embed #status{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+/* wide enough: board on the left, links and the current move stacked to its right */
+@media (min-width:440px){
+  html.embed .wrap{display:grid;grid-template-columns:1fr 320px 1fr;align-items:center;gap:0}
+  html.embed .stage{grid-column:2;grid-row:1}
+  html.embed .panel{display:block;grid-column:3;grid-row:1;min-width:0;padding-left:16px}
+  html.embed .controls{flex-direction:column;align-items:flex-start;gap:8px}
+  html.embed #status{white-space:normal;overflow:visible;text-overflow:clip}
 }
 </style>
 </head>
@@ -589,8 +598,10 @@ async function mate(myGen) {
 }
 
 // ---------- input ----------
+// Embedded copy is a display only: visitors can't move pieces.
+const embed = document.documentElement.classList.contains('embed');
 function onSquare(f, y) {
-  if (busy || auto || over) return;
+  if (embed || busy || auto || over) return;
   if (sel && legal.some(([F, Y]) => F === f && Y === y)) { const s = sel; deselect(); play(s[0], s[1], f, y); return; }
   const p = board[y][f];
   if (p && p.c === turn && !(sel && sel[0] === f && sel[1] === y)) {
@@ -611,6 +622,7 @@ function setStatus(moving) {
   const lastTxt = played.length ? `${n}${dots} ${played[played.length - 1]}` : '';
   if (over) { statusEl.textContent = `${lastTxt} · Checkmate, 1–0`; return; }
   if (moving) { statusEl.textContent = lastTxt; return; }
+  if (embed) { statusEl.textContent = lastTxt; return; }
   statusEl.textContent = (lastTxt ? lastTxt + ' · ' : '') + (turn === 'w' ? 'White' : 'Black') + ' to move';
 }
 function renderLog() {
@@ -644,7 +656,14 @@ async function runAuto() {
     await play(f0, y0, f1, y1);
     await delay(operaIdx < OPERA.length ? 260 : 0);
   }
-  if (myGen === gen) { auto = false; updateBtn(); }
+  if (myGen === gen) {
+    auto = false; updateBtn();
+    // Embedded: hold the final position briefly, then start the game over.
+    if (embed && operaIdx >= OPERA.length) {
+      await delay(4000);
+      if (myGen === gen) { reset(true); auto = true; updateBtn(); runAuto(); }
+    }
+  }
 }
 playBtn.addEventListener('click', () => {
   if (auto) { auto = false; updateBtn(); return; }
@@ -652,7 +671,10 @@ playBtn.addEventListener('click', () => {
   if (sel) { deselect(); renderHL(); }
   auto = true; updateBtn(); runAuto();
 });
-document.getElementById('reset').addEventListener('click', () => reset(true));
+document.getElementById('reset').addEventListener('click', () => {
+  reset(true);
+  if (embed) { auto = true; updateBtn(); runAuto(); }
+});
 svg.addEventListener('click', e => { if (e.target === svg && sel) { deselect(); renderHL(); } });
 
 function reset(intro) {

@@ -6,7 +6,6 @@ import { ChessEmbed } from "@/components/chess-embed";
 import { FadeIn } from "@/components/fade-in";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { NavBar } from "@/components/nav";
-import { ProjectsSection } from "@/components/projects";
 // import { WritingSection } from "@/components/writing";
 import { useTheme } from "@/components/use-theme";
 
@@ -50,7 +49,7 @@ export default function Portfolio() {
         <div className="mb-4 grid gap-6">
           <FadeIn delay={0}>
             <header>
-              <h1 className="mb-2 text-3xl font-semibold">Collin Sobowale</h1>
+              <h1 className="mb-2 text-xl font-semibold">Collin Sobowale</h1>
 
               <div
                 className={`max-w-xl space-y-1 text-sm leading-relaxed ${
@@ -67,7 +66,7 @@ export default function Portfolio() {
                   rainforests.
                 </p>
                 <p>
-                  Building + engineering [at]{" "}
+                  Building + engineering [at] the {" "}
                   <a
                     className="hover:underline hover:underline-offset-4"
                     href="https://iveyproductsociety.com/"
@@ -136,11 +135,11 @@ export default function Portfolio() {
             <section>
               <div>
                 <h2
-                  className={`mb-3 text-md font-mono ${
-                    dark ? "text-zinc-200" : "text-zinc-800"
+                  className={`mb-3 text-sm font-mono ${
+                    dark ? "text-zinc-400" : "text-zinc-600"
                   }`}
                 >
-                  /work [1]
+                  /experience
                 </h2>
 
                 {/* While any experience is hovered the others fade, and the hovered one brightens */}
@@ -202,25 +201,6 @@ export default function Portfolio() {
             </section>
           </FadeIn>
 
-          <FadeIn delay={0.4}>
-            {/* Border Line */}
-            <div
-              className={`mt-6 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
-            />
-            <section id="projects" className="mt-8">
-              <div>
-                <h2
-                  className={`mb-3 text-md font-mono ${
-                    dark ? "text-zinc-300" : "text-zinc-800"
-                  }`}
-                >
-                  /projects [2]
-                </h2>
-                <ProjectsSection dark={dark} />
-              </div>
-            </section>
-          </FadeIn>
-
           {/*
           <FadeIn delay={0.5}>
             <section id="writing" className="mt-8">
@@ -240,19 +220,10 @@ export default function Portfolio() {
         </div>
 
         <FadeIn delay={0.5}>
-          {/* Border Line */}
-          <div
-            className={`mt-6 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
-          />
-          <div className="mt-6">
+          <div className="mt-4">
             <ChessEmbed dark={dark} />
           </div>
         </FadeIn>
-
-        {/* Footer: closing line plus breathing room at the bottom of the page */}
-        <footer
-          className={`mt-8 h-24 border-t ${dark ? "border-zinc-800" : "border-zinc-300"}`}
-        />
       </div>
     </div>
   );
